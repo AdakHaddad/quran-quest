@@ -208,7 +208,7 @@ class QuranAPI {
        }
        
        const availableWords = Array.from(shortWords)
-       let distractors = availableWords
+       const distractors = availableWords
          .sort(() => Math.random() - 0.5)
          .slice(0, 3)
        
