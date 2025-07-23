@@ -292,7 +292,11 @@ export default function QuranMemorizationApp() {
                 <Button
                   key={index}
                   variant={selectedAnswers.includes(option) ? "default" : "outline"}
-                  className="h-16 text-2xl font-bold bg-slate-700 hover:bg-slate-600 border-slate-600 text-white rounded-2xl transition-all duration-200"
+                  className={`h-16 text-2xl font-bold border-slate-600 rounded-2xl transition-all duration-200 ${
+                    selectedAnswers.includes(option)
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-500'
+                      : 'bg-slate-700 hover:bg-slate-600 text-white'
+                  }`}
                   onClick={() => setSelectedAnswers([option])}
                   dir="rtl"
                   disabled={showAnswer}
@@ -325,7 +329,7 @@ export default function QuranMemorizationApp() {
               {selectedAnswers.map((word, index) => (
                 <span
                   key={index}
-                  className="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xl font-bold"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-xl text-xl font-bold shadow-lg"
                   dir="rtl"
                 >
                   {word}
@@ -344,18 +348,25 @@ export default function QuranMemorizationApp() {
             )}
 
             <div className="grid grid-cols-3 gap-3">
-              {currentQuiz.options?.map((option, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="h-14 text-xl font-bold bg-slate-700 hover:bg-slate-600 border-slate-600 text-white rounded-2xl transition-all duration-200"
-                  onClick={() => handleWordSelect(option)}
-                  dir="rtl"
-                  disabled={showAnswer}
-                >
-                  {option}
-                </Button>
-              ))}
+              {currentQuiz.options?.map((option, index) => {
+                const isSelected = selectedAnswers.includes(option)
+                return (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className={`h-14 text-xl font-bold border-slate-600 rounded-2xl transition-all duration-200 ${
+                      isSelected
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-500'
+                        : 'bg-slate-700 hover:bg-slate-600 text-white'
+                    }`}
+                    onClick={() => handleWordSelect(option)}
+                    dir="rtl"
+                    disabled={showAnswer}
+                  >
+                    {option}
+                  </Button>
+                )
+              })}
             </div>
           </div>
         )
@@ -390,7 +401,11 @@ export default function QuranMemorizationApp() {
                 <Button
                   key={index}
                   variant={selectedAnswers.includes(option) ? "default" : "outline"}
-                  className="w-full h-16 text-xl font-bold bg-slate-700 hover:bg-slate-600 border-slate-600 text-white rounded-2xl transition-all duration-200 justify-center"
+                  className={`w-full h-16 text-xl font-bold border-slate-600 rounded-2xl transition-all duration-200 justify-center ${
+                    selectedAnswers.includes(option)
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-500'
+                      : 'bg-slate-700 hover:bg-slate-600 text-white'
+                  }`}
                   onClick={() => setSelectedAnswers([option])}
                   dir="rtl"
                   disabled={showAnswer}
@@ -421,8 +436,8 @@ export default function QuranMemorizationApp() {
                   onDragStart={(e) => handleDragStart(e, word, index)}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragOver={handleDragOver}
-                  className={`bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-xl text-xl font-bold transition-all duration-200 select-none ${
-                    !showAnswer ? 'cursor-move' : 'cursor-default'
+                  className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl text-xl font-bold transition-all duration-200 select-none shadow-lg ${
+                    !showAnswer ? 'cursor-move hover:shadow-xl' : 'cursor-default'
                   }`}
                   dir="rtl"
                 >
