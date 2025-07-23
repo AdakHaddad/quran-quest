@@ -1,0 +1,71 @@
+{
+  "name": "Quran Memorization App",
+  "short_name": "Quran Hifz",
+  "description": "Interactive Quran memorization app with all 114 surahs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "categories": ["education", "productivity", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-narrow.jpg",
+      "sizes": "640x1136",
+      "type": "image/jpeg",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Quiz",
+      "short_name": "Quiz",
+      "description": "Start a new memorization quiz",
+      "url": "/?mode=quiz",
+      "icons": [
+        {
+          "src": "/icon-quiz.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Full Surah Mode",
+      "short_name": "Full Surah",
+      "description": "Practice complete surah memorization",
+      "url": "/?mode=full-surah",
+      "icons": [
+        {
+          "src": "/icon-surah.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+} 
