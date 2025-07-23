@@ -14,6 +14,7 @@ import { SURAHS, getPopularSurahs, type SurahInfo } from "@/lib/surah-data"
 type QuizMode = "fill-blank" | "tap-hear" | "what-next" | "reorder" | "full-surah"
 
 export default function QuranMemorizationApp() {
+
   // App state
   const [currentMode, setCurrentMode] = useState<QuizMode>("fill-blank")
   const [selectedSurah, setSelectedSurah] = useState<SurahInfo>(SURAHS[0]) // Default to Al-Fatiha
