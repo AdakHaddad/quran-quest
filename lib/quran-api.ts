@@ -175,8 +175,61 @@ class QuranAPI {
 
   private async generateFillBlankQuiz(quizItem: QuizData, allAyahs?: Ayah[]): Promise<QuizData> {
     const words = quizItem.arabic.split(' ')
-    if (words.length < 3) return quizItem
     
+    // Handle short ayahs (less than 3 words) differently
+    if (words.length < 3) {
+      // For very short ayahs, create a "complete the verse" style question
+      if (words.length === 1) {
+        // Single word ayah - show translation and ask for the word
+        quizItem.arabic = `_____ (${quizItem.translation})`
+        quizItem.correctAnswer = words[0]
+      } else if (words.length === 2) {
+        // Two word ayah - blank out one randomly
+        const randomIndex = Math.floor(Math.random() * 2)
+        const correctAnswer = words[randomIndex]
+        const blankedWords = [...words]
+        blankedWords[randomIndex] = '_____'
+        
+        quizItem.arabic = blankedWords.join(' ')
+        quizItem.correctAnswer = correctAnswer
+      }
+      
+             // Generate options from other short ayahs or common words
+       const shortWords = new Set<string>()
+       if (allAyahs) {
+         allAyahs.forEach(ayah => {
+           ayah.text.split(' ').forEach((word: string) => {
+             const cleanWord = this.cleanArabicText(word)
+             if (cleanWord.length > 0 && cleanWord !== quizItem.correctAnswer) {
+               shortWords.add(cleanWord)
+             }
+           })
+         })
+       }
+       
+       const availableWords = Array.from(shortWords)
+       let distractors = availableWords
+         .sort(() => Math.random() - 0.5)
+         .slice(0, 3)
+       
+       // Fallback words if we don't have enough distractors
+       const fallbackWords = ['اللَّهِ', 'الرَّحْمَنِ', 'الرَّحِيمِ', 'الْحَمْدُ', 'رَبِّ', 'وَ', 'فِي', 'مِنْ', 'إِلَى', 'قُلْ', 'مَا', 'لَا', 'أَمْ', 'هُوَ']
+       while (distractors.length < 3) {
+         const fallback = fallbackWords[Math.floor(Math.random() * fallbackWords.length)]
+         if (!distractors.includes(fallback) && fallback !== quizItem.correctAnswer) {
+           distractors.push(fallback)
+         }
+       }
+       
+       // Ensure correctAnswer is defined before using it
+       const correctAnswer = quizItem.correctAnswer || words[0]
+       quizItem.options = [correctAnswer, ...distractors]
+       quizItem.options = quizItem.options.sort(() => Math.random() - 0.5)
+      
+      return quizItem
+    }
+    
+    // Original logic for longer ayahs (3+ words)
     // Remove a random word (not the first or last)
     const randomIndex = Math.floor(Math.random() * (words.length - 2)) + 1
     const correctAnswer = words[randomIndex]
