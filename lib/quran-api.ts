@@ -46,7 +46,7 @@ class QuranAPI {
   private baseURL = 'https://api.alquran.cloud/v1'
   
   // Cache for surahs to avoid repeated API calls
-  private surahCache = new Map<string, Surah>()
+  private surahCache = new Map<string, { arabic: Surah; translation: Surah }>()
   private surahListCache: Array<{
     number: number
     name: string
@@ -83,7 +83,7 @@ class QuranAPI {
     
     if (this.surahCache.has(cacheKey)) {
       const cached = this.surahCache.get(cacheKey)!
-      return { arabic: cached, translation: cached }
+      return cached
     }
 
     try {
@@ -102,10 +102,12 @@ class QuranAPI {
         const arabic = arabicData.data
         const translation = translationData.data
         
-        // Cache the result
-        this.surahCache.set(cacheKey, arabic)
+        const result = { arabic, translation }
         
-        return { arabic, translation }
+        // Cache the result with both Arabic and translation
+        this.surahCache.set(cacheKey, result)
+        
+        return result
       }
       throw new Error('Failed to fetch surah data')
     } catch (error) {
