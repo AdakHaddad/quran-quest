@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HifzOS
 
-## Getting Started
+HifzOS is a memorization operating system for Qur'an retention.
 
-First, run the development server:
+It is built around discipline, recall, review, retention, understanding, and consistency.
+
+## Core Problem
+
+Most hifz tools optimize for reading more.
+HifzOS optimizes for forgetting less.
+
+It targets:
+- weak daily consistency
+- forgetting old memorization
+- confusion between similar ayat
+- passive reading without recall
+- weak morning discipline
+
+## Product Goal
+
+Every day the app should answer:
+1. What should I memorize today?
+2. What should I review today?
+3. Which ayat are becoming weak?
+4. What must I fix before sleeping?
+
+## Current Repository Direction (Version 1)
+
+This repository now prioritizes V1 HifzOS behavior:
+- recite-to-dismiss alarm workflow (mockable)
+- blank recall engine
+- weak ayah tracker
+- repeat-to-hear flow
+- daily review planner
+
+## Architecture Summary
+
+The Next.js app remains the runtime foundation.
+
+Domain modules are organized in `/lib/hifzos`:
+- `types.ts` — core data model
+- `storage.ts` — persistence boundaries
+- `mission-planner.ts` — daily mission planning
+- `review-priority.ts` — review ranking formula
+- `weak-ayah-tracker.ts` — weakness scoring updates
+- `recall-engine.ts` — blank recall prompt + validation
+- `repeat-to-hear.ts` — repeat/listen flow model
+- `feature-flags.ts` — staged rollout controls
+- `ayah-catalog.ts` — seed ayah references for V1 flow
+
+## Docs
+
+See `/docs` for product and system framing:
+- philosophy
+- daily framework
+- review system
+- blank recall engine
+- similarity grouping
+- weak ayah system
+- image hints
+- meaning layer
+- speech validation
+- roadmap
+- research notes
+
+## Roadmap Phasing
+
+### Version 1 (implemented direction)
+Core discipline loop only.
+
+### Version 2 (flagged/deferred)
+- similarity grouping
+- image hint recall
+- meaning layer
+- mushaf position hint
+- spaced repetition upgrades
+
+### Version 3 (deferred)
+- teacher mode
+- parent mode
+- halaqah groups
+- progress dashboard expansion
+
+## Local Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quality Checks
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```
