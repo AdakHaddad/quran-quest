@@ -22,7 +22,7 @@ const updateQueueItem = (item: ReviewQueueItem, attempt: RecallAttempt): ReviewQ
   return {
     ...item,
     weaknessScore: clamp(item.weaknessScore + delta, 1, 100),
-    recentFailureCount: attempt.correct ? Math.max(1, item.recentFailureCount - 1) : item.recentFailureCount + 1,
+    recentFailureCount: attempt.correct ? Math.max(0, item.recentFailureCount - 1) : item.recentFailureCount + 1,
     lastReviewedAt: attempt.createdAt,
   }
 }
@@ -49,6 +49,10 @@ export const applyRecallAttempt = (profile: HifzProfile, attempt: RecallAttempt)
   const totalAttempts = profile.recallAttempts.length + 1
   const correctAttempts = [...profile.recallAttempts, attempt].filter((entry) => entry.correct).length
   const hesitationEvents = [...profile.recallAttempts, attempt].filter((entry) => entry.hesitationMs > 3500).length
+  const averageWeaknessScore =
+    updatedQueue.length > 0
+      ? updatedQueue.reduce((sum, item) => sum + item.weaknessScore, 0) / updatedQueue.length
+      : 0
 
   return {
     ...profile,
@@ -74,10 +78,7 @@ export const applyRecallAttempt = (profile: HifzProfile, attempt: RecallAttempt)
       ...profile.metrics,
       recallAccuracyPercent: Math.round((correctAttempts / totalAttempts) * 100),
       hesitationEvents,
-      weakAyahRecoveryPercent: Math.max(
-        0,
-        100 - Math.round(updatedQueue.reduce((sum, item) => sum + item.weaknessScore, 0) / updatedQueue.length),
-      ),
+      weakAyahRecoveryPercent: Math.min(100, Math.max(0, 100 - Math.round(averageWeaknessScore))),
     },
   }
 }

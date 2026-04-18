@@ -14,7 +14,12 @@ const normalizeArabic = (text: string): string =>
 
 export const createBlankRecallPrompt = (ayah: AyahSeed): BlankRecallPrompt => {
   const words = ayah.text.split(" ").filter(Boolean)
-  const blankIndex = words.length > 2 ? 1 : 0
+  const blankIndex = (() => {
+    if (words.length <= 2) return 0
+    const middleRange = words.length - 2
+    const candidate = (ayah.ref.surahNumber + ayah.ref.ayahNumber) % middleRange
+    return candidate + 1
+  })()
   const expectedWord = words[blankIndex] ?? words[0] ?? ""
   const withBlank = [...words]
   withBlank[blankIndex] = "_____"

@@ -16,12 +16,28 @@ import type { HifzProfile, RecallAttempt, ReviewQueueItem } from "@/lib/hifzos/t
 import { applyRecallAttempt } from "@/lib/hifzos/weak-ayah-tracker"
 
 type Screen = "home" | "recall" | "weak" | "night"
+const FAST_RECALL_MS = 1400
 
 const ayahLabel = (item: { surahNumber: number; ayahNumber: number }): string =>
   `Surah ${item.surahNumber}:${item.ayahNumber}`
 
 const pickTopAyah = (queue: ReviewQueueItem[]): ReviewQueueItem | null => {
   return rankReviewQueue(queue)[0] ?? null
+}
+
+const calculateReviewCompletion = (
+  attempts: RecallAttempt[],
+  todayTargetCount: number,
+  date = new Date(),
+): number => {
+  const completedToday = attempts.filter((entry) => {
+    const sameDay = new Date(entry.createdAt).toDateString() === date.toDateString()
+    return sameDay && entry.correct
+  }).length
+
+  return todayTargetCount === 0
+    ? 0
+    : Math.min(100, Math.round((completedToday / todayTargetCount) * 100))
 }
 
 export default function HifzOSPage() {
@@ -33,6 +49,7 @@ export default function HifzOSPage() {
   const [alarmDismissed, setAlarmDismissed] = useState(false)
   const [feedback, setFeedback] = useState<string>("")
   const [repeatCyclesCompleted, setRepeatCyclesCompleted] = useState(0)
+  const [promptStartedAt, setPromptStartedAt] = useState<number>(Date.now())
 
   useEffect(() => {
     const loaded = loadProfile()
@@ -66,20 +83,29 @@ export default function HifzOSPage() {
 
   const repeatFlow = useMemo(() => buildRepeatToHearFlow(2), [])
 
-  if (!profile || !mission || !prompt || !focusQueueItem || !focusAyah) {
+  useEffect(() => {
+    setPromptStartedAt(Date.now())
+  }, [focusQueueItem?.id])
+
+  if (!profile) {
     return <div className="min-h-screen bg-slate-950 text-white p-6">Loading HifzOS…</div>
+  }
+  
+  if (!mission || !prompt || !focusQueueItem || !focusAyah) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white p-6">
+        <p>Unable to initialize HifzOS session data. Please refresh to reload local profile state.</p>
+      </div>
+    )
   }
 
   const applyAttemptAndUpdate = (attempt: RecallAttempt): void => {
     const updated = applyRecallAttempt(profile, attempt)
-
-    const todayTarget = mission.reviewTargets.length
-    const completedToday = updated.recallAttempts.filter((entry) => {
-      const sameDay = new Date(entry.createdAt).toDateString() === new Date().toDateString()
-      return sameDay && entry.correct
-    }).length
-
-    const reviewCompletionPercent = todayTarget === 0 ? 0 : Math.min(100, Math.round((completedToday / todayTarget) * 100))
+    const updatedMission = planDailyMission(updated)
+    const reviewCompletionPercent = calculateReviewCompletion(
+      updated.recallAttempts,
+      updatedMission.reviewTargets.length,
+    )
 
     setProfile({
       ...updated,
@@ -93,13 +119,14 @@ export default function HifzOSPage() {
   const handleAttempt = (mode: RecallAttempt["mode"], answer: string): void => {
     const expected = prompt.expectedWord
     const correct = isRecallAnswerCorrect(answer, expected)
+    const hesitationMs = Math.max(FAST_RECALL_MS, Date.now() - promptStartedAt)
 
     applyAttemptAndUpdate({
       id: `${mode}-${Date.now()}`,
       ref: focusQueueItem.ref,
       mode,
       correct,
-      hesitationMs: answer.trim().length < expected.length ? 4200 : 1400,
+      hesitationMs,
       answer,
       expectedAnswer: expected,
       createdAt: new Date().toISOString(),
@@ -119,10 +146,14 @@ export default function HifzOSPage() {
       setFeedback(correct ? "Night repair completed." : "Night repair still pending.")
       setNightInput("")
     }
+
+    setPromptStartedAt(Date.now())
   }
 
   const topWeak = rankReviewQueue(profile.reviewQueue).filter((item) => item.weaknessScore >= 30)
   const nightMustFix = mission.nightFixes
+  const v2Enabled = Object.values(featureFlags.v2).some(Boolean)
+  const v3Enabled = Object.values(featureFlags.v3).some(Boolean)
 
   return (
     <main className="min-h-screen bg-slate-950 text-white p-4 md:p-8">
@@ -132,8 +163,8 @@ export default function HifzOSPage() {
           <p className="text-slate-300">Daily memorization operating system for retention, not just reading.</p>
           <div className="flex flex-wrap gap-2 text-xs">
             <span className="px-2 py-1 rounded bg-emerald-800 text-emerald-200">V1 Active</span>
-            <span className="px-2 py-1 rounded bg-slate-800 text-slate-200">V2 Features Flagged: {String(featureFlags.v2.similarityGrouping || featureFlags.v2.imageHintRecall)}</span>
-            <span className="px-2 py-1 rounded bg-slate-800 text-slate-200">V3 Features Flagged: {String(featureFlags.v3.teacherMode || featureFlags.v3.halaqahGroups)}</span>
+            <span className="px-2 py-1 rounded bg-slate-800 text-slate-200">V2 Features: {v2Enabled ? "Enabled" : "Deferred"}</span>
+            <span className="px-2 py-1 rounded bg-slate-800 text-slate-200">V3 Features: {v3Enabled ? "Enabled" : "Deferred"}</span>
           </div>
         </header>
 

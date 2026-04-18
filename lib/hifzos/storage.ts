@@ -5,15 +5,37 @@ const STORAGE_KEY = "hifzos.profile.v1"
 
 const now = (): string => new Date().toISOString()
 
+const getInitialWeaknessScore = (index: number): number => {
+  return index < 2 ? 25 : 15
+}
+
+const SIMILARITY_RISK_BY_SURAH: Record<number, number> = {
+  1: 1.1,
+  92: 1.4,
+}
+
+const IMPORTANCE_WEIGHT_BY_SURAH: Record<number, number> = {
+  1: 1.4,
+  92: 1.2,
+}
+
+const getSimilarityRisk = (surahNumber: number): number => {
+  return SIMILARITY_RISK_BY_SURAH[surahNumber] ?? 1.1
+}
+
+const getImportanceWeight = (surahNumber: number): number => {
+  return IMPORTANCE_WEIGHT_BY_SURAH[surahNumber] ?? 1.2
+}
+
 const buildInitialReviewQueue = (): ReviewQueueItem[] => {
   return AYAH_CATALOG.map((ayah, index) => ({
     id: `queue-${ayah.ref.surahNumber}-${ayah.ref.ayahNumber}`,
     ref: ayah.ref,
-    weaknessScore: index < 2 ? 25 : 15,
-    similarityRisk: ayah.ref.surahNumber === 92 ? 1.4 : 1.1,
+    weaknessScore: getInitialWeaknessScore(index),
+    similarityRisk: getSimilarityRisk(ayah.ref.surahNumber),
     lastReviewedAt: now(),
     recentFailureCount: 1,
-    importanceWeight: ayah.ref.surahNumber === 1 ? 1.4 : 1.2,
+    importanceWeight: getImportanceWeight(ayah.ref.surahNumber),
   }))
 }
 
@@ -27,8 +49,8 @@ const createInitialProfile = (): HifzProfile => ({
       startAyah: 1,
       endAyah: 7,
       status: "memorizing",
-      importanceWeight: 1.4,
-      similarityRisk: 1.1,
+      importanceWeight: getImportanceWeight(1),
+      similarityRisk: getSimilarityRisk(1),
       updatedAt: now(),
     },
     {
@@ -37,8 +59,8 @@ const createInitialProfile = (): HifzProfile => ({
       startAyah: 1,
       endAyah: 5,
       status: "new",
-      importanceWeight: 1.2,
-      similarityRisk: 1.5,
+      importanceWeight: getImportanceWeight(92),
+      similarityRisk: getSimilarityRisk(92),
       updatedAt: now(),
     },
   ],
